@@ -16,8 +16,7 @@ class UpdateProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<Appcubit,AppStates>(
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         Appcubit cubit = Appcubit.get(context);
         return Scaffold(
@@ -25,7 +24,7 @@ class UpdateProfileScreen extends StatelessWidget {
             title: Text('Edit Profile'),
             actions: [
               TextButton(onPressed: (){
-                cubit.updateProfileData(uId!,{
+                cubit.updateProfileData(user.uId,{
                   'name': nameController.text,
                   'bio': bioController.text,
                   'phone': phoneController.text,

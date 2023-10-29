@@ -21,7 +21,6 @@ Future <void> main() async {
 
   if (uId != null) {
     myPage = HomeLayout();
-    user?.uId = uId!;
   } else
     myPage = LoginScreen();
   runApp(const MyApp());

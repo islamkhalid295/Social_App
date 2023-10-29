@@ -57,3 +57,18 @@ class updateProfileDataLodingState extends AppStates {}
 class updateProfileDataSuccessState extends AppStates {}
 
 class updateProfileDataErrorState extends AppStates {}
+
+class RemovePostImageState extends AppStates {}
+
+class GetPostImageLodingState extends AppStates {}
+
+class GetPostImageSuccessState extends AppStates {}
+
+class GetPostImageErrorState extends AppStates {}
+
+class AddNewPostLodingState extends AppStates {}
+
+class AddNewPostSuccessState extends AppStates {}
+
+class AddNewPostErrorState extends AppStates {}
+

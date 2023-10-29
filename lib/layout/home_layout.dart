@@ -6,6 +6,8 @@ import 'package:social_app/component/component.dart';
 import 'package:social_app/constans/constats.dart';
 import 'package:social_app/cubit/app_cubit.dart';
 import 'package:social_app/cubit/states.dart';
+import 'package:social_app/modules/login_screen.dart';
+import 'package:social_app/network/local/cache_helper.dart';
 
 import '../modules/settings_screen.dart';
 
@@ -26,6 +28,10 @@ class HomeLayout extends StatelessWidget {
               IconButton(onPressed: () {}, icon: Icon(IconBroken.Search)),
               IconButton(
                   onPressed: () {}, icon: Icon(IconBroken.Notification)),
+              TextButton(onPressed: (){
+                CacheHelper.sharedPreferences.remove('uId');
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
+              }, child: Text('Logout'),)
             ],
           ),
           body: cubit.screens[cubit.currentIndex],
@@ -39,6 +45,9 @@ class HomeLayout extends StatelessWidget {
                     icon: Icon(IconBroken.Chat, color: defaultColor),
                     label: "Chats"),
                 BottomNavigationBarItem(
+                    icon: Icon(IconBroken.Paper_Plus, color: defaultColor),
+                    label: "New Post"),
+                BottomNavigationBarItem(
                     icon: Icon(IconBroken.Location, color: defaultColor),
                     label: "Users"),
                 BottomNavigationBarItem(
@@ -47,7 +56,7 @@ class HomeLayout extends StatelessWidget {
                 ),
               ],
               onTap: (value) {
-                cubit.changeNavBarState(value);
+                cubit.changeNavBarState(value,context);
               },
               currentIndex: cubit.currentIndex),
         );

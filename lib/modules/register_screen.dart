@@ -120,11 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscureText: !showPassword,
                         onFieldSubmitted: (value) {
                           if (formKey.currentState!.validate()) {
-                            LoginCubit.get(context).login(
-                              emailController.text,
-                              passwordController.text,
-                              context,
-                            );
+                            LoginCubit.get(context).register(nameController.text,emailController.text,passwordController.text,phoneController.text,context);
                           }
                         },
                         decoration: InputDecoration(

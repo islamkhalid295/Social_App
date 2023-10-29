@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_app/cubit/states.dart';
@@ -10,8 +11,10 @@ import 'package:social_app/main.dart';
 import 'package:social_app/models/user_model.dart';
 import 'package:social_app/modules/chat_screen.dart';
 import 'package:social_app/modules/feed_screen.dart';
+import 'package:social_app/modules/new_post_screen.dart';
 import 'package:social_app/modules/users_screen.dart';
 
+import '../component/component.dart';
 import '../constans/constats.dart';
 import '../modules/settings_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -25,6 +28,7 @@ class Appcubit extends Cubit<AppStates> {
   List<Widget> screens = [
     FeedScreen(),
     ChatScreen(),
+    NewPostScreen(),
     UsersScreen(),
     SettingsScreen(),
   ];
@@ -51,59 +55,126 @@ class Appcubit extends Cubit<AppStates> {
     });
   }
 
-  void changeNavBarState(int index) {
-    currentIndex = index;
+  void changeNavBarState(int index, context) {
+    if (index != 2)
+      currentIndex = index;
+    else
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewPostScreen(),
+          ));
     emit(NavBarChangeState());
   }
 
   void updateProfileData(String uId, Map<Object, Object?> data) {
     emit(updateProfileDataLodingState());
-    FirebaseFirestore.instance.collection('users').doc(uId).update(data).then((value) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uId)
+        .update(data)
+        .then((value) {
       emit(updateProfileDataSuccessState());
+      toast('تم تعديل البيانات بنجاح', Colors.green);
       getUser(uId);
-    }).catchError((error){
+    }).catchError((error) {
+      toast(error.toString(), Colors.red);
       print(error);
       emit(updateProfileDataErrorState());
     });
   }
+
   late File image;
 
-  Future<void> updateProfileImage() async
-  {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if(pickedFile != null)
-      {
-        image = File(pickedFile.path);
-        FirebaseStorage.instance.ref().child('user/${Uri.file(image.path).pathSegments.last}').putFile(image).then((p0){
-          p0.ref.getDownloadURL().then((value) {
-            print(value.toString());
-            updateProfileData(uId!,{
-              'profile' : value.toString(),
-            });
-            user?.profile = value.toString();
-          }).catchError((error){
-            print(error);
-          });
-        });
-      }
-  }
-  Future<void> updateCoverImage() async
-  {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if(pickedFile != null)
-    {
+  Future<void> updateProfileImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
       image = File(pickedFile.path);
-      FirebaseStorage.instance.ref().child('user/${Uri.file(image.path).pathSegments.last}').putFile(image).then((p0){
+      FirebaseStorage.instance
+          .ref()
+          .child('user/${Uri.file(image.path).pathSegments.last}')
+          .putFile(image)
+          .then((p0) {
         p0.ref.getDownloadURL().then((value) {
           print(value.toString());
-          updateProfileData(uId!,{
-            'cover' : value.toString(),
+          updateProfileData(uId!, {
+            'profile': value.toString(),
           });
           user?.profile = value.toString();
-        }).catchError((error){
+        }).catchError((error) {
           print(error);
         });
       });
     }
+  }
+
+  Future<void> updateCoverImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      image = File(pickedFile.path);
+      FirebaseStorage.instance
+          .ref()
+          .child('user/${Uri.file(image.path).pathSegments.last}')
+          .putFile(image)
+          .then((p0) {
+        p0.ref.getDownloadURL().then((value) {
+          print(value.toString());
+          updateProfileData(uId!, {
+            'cover': value.toString(),
+          });
+          user.cover = value.toString();
+        }).catchError((error) {
+          print(error);
+        });
+      });
+    }
+  }
+
+  String? postImage;
+
+  Future<void> getPostImage() async {
+    emit(GetPostImageLodingState());
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      File Image = File(pickedFile.path);
+      FirebaseStorage.instance
+          .ref()
+          .child('post/${Uri.file(Image.path).pathSegments.last}')
+          .putFile(Image)
+          .then((p0) {
+        p0.ref.getDownloadURL().then((value) {
+          print(value.toString());
+          postImage = value.toString();
+          emit(GetPostImageSuccessState());
+        }).catchError((error) {
+          emit(GetPostImageErrorState());
+          print(error);
+        });
+      });
+    }
+  }
+
+  void removePostImage() {
+    postImage = null;
+    emit(RemovePostImageState());
+  }
+
+  void addPost(String text, String postImage) {
+    emit(AddNewPostLodingState());
+    FirebaseFirestore.instance.collection('posts').add(
+        {
+          'image': user.profile,
+          'name' : user.name,
+          'text' : text,
+          'postImage' : postImage,
+          'dateTimw' : DateTime.now().toString(),
+          'uId' : user.uId,
+        }
+    ).then((value) {
+      emit(AddNewPostSuccessState());
+    });
   }
 }
