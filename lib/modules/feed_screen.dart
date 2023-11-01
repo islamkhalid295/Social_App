@@ -1,6 +1,11 @@
+import 'package:conditional_builder_rec/conditional_builder_rec.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:icon_broken/icon_broken.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:social_app/constans/constats.dart';
+import 'package:social_app/cubit/states.dart';
 import '../component/component.dart';
 import '../cubit/app_cubit.dart';
 
@@ -10,9 +15,11 @@ class FeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Appcubit cubit = Appcubit.get(context);
-    return Container(
-      child: Container(
-        child: SingleChildScrollView(
+    return BlocConsumer<Appcubit,AppStates>(
+      listener: (context, state) {
+      },
+      builder: (context, state) {
+        return SingleChildScrollView(
           child: Column(
             children: [
               Padding(
@@ -23,16 +30,20 @@ class FeedScreen extends StatelessWidget {
                   child: Image(image: NetworkImage('https://img.piri.net/piri/upload/3/2023/10/10/4ca608d1-k56wjvnaov01quf9o5b3w4.jpeg'),),
                 ),
               ),
-              ListView.builder(
-                itemBuilder: (context, index) => BuildNewsItem(context,cubit.images[index]),
-                itemCount: 10,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+              ConditionalBuilderRec(
+               condition: cubit.posts != null && cubit.likes.length == cubit.posts?.length,
+                fallback: (context) => Center(child: CircularProgressIndicator()),
+                builder: (context) => ListView.builder(
+                  itemBuilder: (context, index) => BuildNewsItem(context,cubit.posts![index],index),
+                  itemCount: cubit.posts!.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                ),
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

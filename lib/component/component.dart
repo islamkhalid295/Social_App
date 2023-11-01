@@ -1,7 +1,13 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:conditional_builder_rec/conditional_builder_rec.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:icon_broken/icon_broken.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:social_app/constans/constats.dart';
+import 'package:social_app/cubit/app_cubit.dart';
+import 'package:social_app/cubit/states.dart';
 
 void toast(String messange, Color color) {
   Fluttertoast.showToast(
@@ -20,100 +26,337 @@ Widget myDivider() => Container(
       color: Colors.grey,
     );
 
-Widget BuildNewsItem (context,String? image)=> Padding(
-  padding: const EdgeInsets.only(top: 3.0,left: 8,right: 8),
-  child: Column(
-    children: [
-      Card(
-        elevation: 5,
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 8.0,left: 8,right: 8),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage('https://mc.webpcache.epapr.in/mcms.php?size=medium&in=https://mcmscache.epapr.in/post_images/website_350/post_15704806/thumb.jpg'),
-                  ),
-                  SizedBox(width: 10,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Islam Khalid',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text('October 7,2023 at 10:00 Am',
-                          style: Theme.of(context).textTheme.labelSmall
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: myDivider(),
-              ),
-              Card(
-                elevation: 5,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                child: Image(image: NetworkImage(image ?? 'https://cdn.cfr.org/sites/default/files/styles/full_width_xl/public/image/2019/05/Quiz_IsraelPalestine_New.jpg.webp'),),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
+Widget BuildNewsItem(context, QueryDocumentSnapshot<Map<String, dynamic>> posts, int index) {
+  var commentController = TextEditingController();
+  return Padding(
+    padding: const EdgeInsets.only(top: 3.0, left: 8, right: 8),
+    child: Column(
+      children: [
+        Card(
+          elevation: 5,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 8, right: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Icon(IconBroken.Heart,color: Colors.red,size: 20,),
-                    SizedBox(width: 5,),
-                    Text('10.3 M',
-                      style: Theme.of(context).textTheme.labelSmall,
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: NetworkImage(posts.get('image')),
                     ),
-                    Spacer(),
-                    Icon(IconBroken.Chat,color: Colors.amber,size: 20,),
-                    SizedBox(width: 5,),
-                    Text('5.8 M',
-                      style: Theme.of(context).textTheme.labelSmall,
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          posts.get('name'),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        Text(posts.get('dateTimw'),
+                            style: Theme.of(context).textTheme.labelSmall),
+                      ],
                     ),
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: myDivider(),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8,left: 8,),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundImage: NetworkImage('https://mc.webpcache.epapr.in/mcms.php?size=medium&in=https://mcmscache.epapr.in/post_images/website_350/post_15704806/thumb.jpg'),
-                    ),
-                    SizedBox(width: 10,),
-                    Expanded(
-                      child: InkWell(
-                        onTap: (){},
-                        child: Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.grey)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(' Write a comment ...   ',
-                                style: Theme.of(context).textTheme.labelSmall
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: myDivider(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(posts.get('text')),
+                ),
+                if (posts.get('postImage') != '')
+                  Stack(
+                    children: <Widget>[
+                      Image.network(
+                        posts.get('postImage'),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress != null)
+                            return Shimmer.fromColors(
+                              baseColor: Colors.amber.withAlpha(20),
+                              highlightColor: Colors.amber.shade50,
+                              child: Icon(
+                                IconBroken.Image,
+                                size: 200,
+                              ),
+                            );
+                          else
+                            return Card(
+                              elevation: 5,
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              child: Image.network(
+                                posts.get('postImage'),
+                              ),
+                            );
+                        },
+                      ),
+                    ],
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        IconBroken.Heart,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '${Appcubit.get(context).likes[index]}',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                      Spacer(),
+                      Icon(
+                        IconBroken.Chat,
+                        color: Colors.amber,
+                        size: 20,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '5.8 M',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: myDivider(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                    left: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 16,
+                        backgroundImage: NetworkImage(user.profile),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            Appcubit.get(context).comments != null;
+                            Appcubit.get(context).getPostComments(posts.id);
+                            Appcubit.scaffoldKey.currentState
+                                ?.showBottomSheet((context) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 10.0,
+                                        right: 10,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              physics: PageScrollPhysics(),
+                                              child: BlocConsumer<Appcubit,AppStates>(
+                                                listener: (context, state) {
+                                                },
+                                                builder: (context, state) {
+                                                  return ConditionalBuilderRec(
+                                                    condition: Appcubit.get(context).comments != null ,
+                                                    fallback: (context) => Center(child: CircularProgressIndicator()),
+                                                    builder: (context) {
+                                                      return ListView.builder(
+                                                        shrinkWrap: true,
+                                                        physics: const NeverScrollableScrollPhysics(),
+                                                        itemBuilder: (context, index) => BuildComment(context,Appcubit.get(context).comments!.elementAt(index)),
+                                                        itemCount: Appcubit.get(context).comments!.length,
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              )
+                                            ),
+                                          ),
+                                          Card(
+                                            margin: EdgeInsets.symmetric(horizontal: 10),
+                                            elevation: 5,
+                                            shape: OutlineInputBorder(borderRadius: BorderRadius.circular(5),
+                                            borderSide: BorderSide(color: Colors.amber)
+                                            ),
+                                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                                            child: Row(
+                                              children: [
+                                                // Icon(Icons.comment,
+                                                //     color: Colors.grey),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .only(
+                                                        left:  10),
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.grey[200],
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10)),
+                                                      child: Padding(
+                                                        padding: const EdgeInsets
+                                                            .symmetric(
+                                                            horizontal: 8.0),
+                                                        child: TextFormField(
+                                                            maxLines: 5,
+                                                            minLines: 1,
+                                                            controller:
+                                                                commentController,
+                                                            decoration:
+                                                                const InputDecoration(
+                                                              hintText:
+                                                                  'write your comment ...',
+                                                              border: InputBorder
+                                                                  .none,
+                                                            )),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    Appcubit.get(context)
+                                                        .addComment(
+                                                            commentController
+                                                                .text,
+                                                            posts.id);
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.telegram_outlined,
+                                                    color: Colors.amber,
+                                                    size: 40,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+
+                                          ),
+                                        ],
+                                      ),
+                                    ));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.grey)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(' Write a comment ...   ',
+                                  style:
+                                      Theme.of(context).textTheme.labelSmall),
                             ),
                           ),
                         ),
                       ),
-                    ),
-
-                    IconButton(onPressed: (){}, icon: Icon(IconBroken.Heart,color: Colors.red,size: 20,),),
-                    IconButton(onPressed: (){}, icon: Icon(IconBroken.Send,color: Colors.green,size: 20,),),
-                  ],
+                      IconButton(
+                        onPressed: () {
+                          Appcubit.get(context).likePost(posts.id);
+                        },
+                        icon: Icon(
+                          IconBroken.Heart,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          IconBroken.Send,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget BuildComment(context, QueryDocumentSnapshot<Map<String, dynamic>> comment) => Padding(
+  padding:
+  const EdgeInsets.only(
+      top: 8,
+      left: 8,
+      bottom: 8),
+  child: Row(
+    crossAxisAlignment:
+    CrossAxisAlignment
+        .start,
+    children: [
+      CircleAvatar(
+        radius: 16,
+        backgroundImage:
+        NetworkImage(
+            comment['userImage']),
+      ),
+      SizedBox(
+        width: 10,
+      ),
+      Expanded(
+        child: Container(
+          decoration:
+          BoxDecoration(
+            borderRadius:
+            BorderRadius
+                .circular(
+                10),
+            border: Border.all(
+                color: Colors
+                    .grey),
+            color: Colors
+                .grey[300],
+          ),
+          child: Padding(
+            padding:
+            const EdgeInsets
+                .all(8.0),
+            child: Column(
+              crossAxisAlignment:
+              CrossAxisAlignment
+                  .start,
+              children: [
+                Text(
+                  comment['userName'],
+                  style: Theme.of(
+                      context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(
+                    fontWeight:
+                    FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  comment['comment'],
+                  style: Theme.of(
+                      context)
+                      .textTheme
+                      .bodySmall,
+                ),
+              ],
+            ),
           ),
         ),
       ),

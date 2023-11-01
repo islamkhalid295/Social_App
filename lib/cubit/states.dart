@@ -66,9 +66,33 @@ class GetPostImageSuccessState extends AppStates {}
 
 class GetPostImageErrorState extends AppStates {}
 
+class GetPostsLodingState extends AppStates {}
+
+class GetPostsSuccessState extends AppStates {}
+
+class GetPostsErrorState extends AppStates {}
+
 class AddNewPostLodingState extends AppStates {}
 
 class AddNewPostSuccessState extends AppStates {}
 
 class AddNewPostErrorState extends AppStates {}
+
+class RefrashImageState extends AppStates {}
+
+class LikePostSuccessState extends AppStates {}
+
+class GetPostLikesSuccessState extends AppStates {}
+
+class AddNewCommentLodingState extends AppStates {}
+
+class AddNewCommentSuccessState extends AppStates {}
+
+class AddNewCommentErrorState extends AppStates {}
+
+class GetPostCommentsLodingState extends AppStates {}
+
+class GetPostCommentsSuccessState extends AppStates {}
+
+class GetPostCommentsErrorState extends AppStates {}
 

@@ -162,19 +162,120 @@ class Appcubit extends Cubit<AppStates> {
     emit(RemovePostImageState());
   }
 
+  List<QueryDocumentSnapshot<Map<String, dynamic>>>? posts;
+
   void addPost(String text, String postImage) {
     emit(AddNewPostLodingState());
-    FirebaseFirestore.instance.collection('posts').add(
-        {
-          'image': user.profile,
-          'name' : user.name,
-          'text' : text,
-          'postImage' : postImage,
-          'dateTimw' : DateTime.now().toString(),
-          'uId' : user.uId,
-        }
-    ).then((value) {
+    FirebaseFirestore.instance.collection('posts').add({
+      'image': user.profile,
+      'name': user.name,
+      'text': text,
+      'postImage': postImage,
+      'dateTimw': DateTime.now().toString(),
+      'uId': user.uId,
+    }).then((value) {
+      getPosts();
       emit(AddNewPostSuccessState());
     });
   }
+List<int> likes = [];
+  void getPosts() {
+    emit(GetPostsLodingState());
+    FirebaseFirestore.instance.collection('posts').get().then((value) {
+      posts = value.docs;
+      value.docs.forEach((element) {
+       getPostLikes(element.id,likes);
+      });
+      //print(value.docs[0].get('text'));
+      //print(value.docs[0].id);
+    });
+  }
+
+  void refrashImage() {
+    emit(RefrashImageState());
+  }
+
+
+  void likePost(String postId) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(user.uId)
+        .set({'like': true}).then((value) {
+      emit(LikePostSuccessState());
+    });
+  }
+
+  void getPostLikes(String postId, List<int> likes) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .get()
+        .then((value) {
+          likes.add(value.docs.length);
+      emit(GetPostLikesSuccessState());
+    });
+
+  }
+
+ static var scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void addComment(String text, String postId) {
+    emit(AddNewCommentLodingState());
+    FirebaseFirestore.instance.collection('posts').doc(postId).collection('comments').add(
+        {
+          'comment' : text,
+          'userName': user.name,
+          'userImage': user.profile,
+        }
+    )
+    .then((value) {
+      emit(AddNewCommentSuccessState());
+      getPostComments(postId);
+    });
+  }
+  Iterable<QueryDocumentSnapshot<Map<String, dynamic>>>? comments;
+  void getPostComments(String postId) {
+    emit(GetPostCommentsLodingState());
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .get().then((value) {
+      comments = value.docs.reversed;
+      emit(GetPostCommentsSuccessState());
+    });
+  }
+  static Widget changeIcon()
+  {
+    bool love = false;
+    if(!love)
+      {
+        love = !love;
+        return Icon(
+              Icons.favorite,
+              color: Colors.red,
+              size: 20,
+            );
+      }else
+        {
+          Icon(
+                Icons.favorite_border,
+                color: Colors.red,
+                size: 20,
+              );
+        }
+    // return love ? Icon(
+    //   Icons.favorite,
+    //   color: Colors.red,
+    //   size: 20,
+    // ) : Icon(
+    //   Icons.favorite_border,
+    //   color: Colors.red,
+    //   size: 20,
+    // );
+  }
+
 }

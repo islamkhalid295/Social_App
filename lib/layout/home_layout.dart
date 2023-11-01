@@ -22,8 +22,9 @@ class HomeLayout extends StatelessWidget {
       builder: (context, state) {
         Appcubit cubit = Appcubit.get(context);
         return Scaffold(
+          key: Appcubit.scaffoldKey,
           appBar: AppBar(
-            title: Text('News Feed'),
+            title: FittedBox(child: Text('News Feed')),
             actions: [
               IconButton(onPressed: () {}, icon: Icon(IconBroken.Search)),
               IconButton(
