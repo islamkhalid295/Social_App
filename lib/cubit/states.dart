@@ -96,6 +96,18 @@ class AddNewCommentSuccessState extends AppStates {}
 
 class AddNewCommentErrorState extends AppStates {}
 
+class AddMessageLodingState extends AppStates {}
+
+class AddMessageSuccessState extends AppStates {}
+
+class AddMessageErrorState extends AppStates {}
+
+class GetMessageLodingState extends AppStates {}
+
+class GetMessageSuccessState extends AppStates {}
+
+class GetMessageErrorState extends AppStates {}
+
 class GetPostCommentsLodingState extends AppStates {}
 
 class GetPostCommentsSuccessState extends AppStates {}

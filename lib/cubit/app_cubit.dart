@@ -1,8 +1,7 @@
 import 'dart:io';
 
-import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,7 +16,6 @@ import 'package:social_app/modules/users_screen.dart';
 import '../component/component.dart';
 import '../constans/constats.dart';
 import '../modules/settings_screen.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class Appcubit extends Cubit<AppStates> {
   Appcubit(super.initialState);
@@ -56,8 +54,7 @@ class Appcubit extends Cubit<AppStates> {
   }
 
   void changeNavBarState(int index, context) {
-    if (index == 1)
-      getUsers();
+    if (index == 1) getUsers();
     if (index != 2)
       currentIndex = index;
     else
@@ -180,7 +177,9 @@ class Appcubit extends Cubit<AppStates> {
       emit(AddNewPostSuccessState());
     });
   }
+
   List<Future<int>> likes = [];
+
   void getPosts() {
     emit(GetPostsLodingState());
     FirebaseFirestore.instance.collection('posts').get().then((value) {
@@ -199,7 +198,6 @@ class Appcubit extends Cubit<AppStates> {
   void refrashImage() {
     emit(RefrashImageState());
   }
-
 
   void likePost(String postId) {
     FirebaseFirestore.instance
@@ -225,53 +223,55 @@ class Appcubit extends Cubit<AppStates> {
     }).toList();
   }
 
- static var scaffoldKey = GlobalKey<ScaffoldState>();
+  static var scaffoldKey = GlobalKey<ScaffoldState>();
 
   void addComment(String text, String postId) {
     emit(AddNewCommentLodingState());
-    FirebaseFirestore.instance.collection('posts').doc(postId).collection('comments').add(
-        {
-          'comment' : text,
-          'userName': user.name,
-          'userImage': user.profile,
-        }
-    )
-    .then((value) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .add({
+      'comment': text,
+      'userName': user.name,
+      'userImage': user.profile,
+    }).then((value) {
       emit(AddNewCommentSuccessState());
       getPostComments(postId);
     });
   }
+
   Iterable<QueryDocumentSnapshot<Map<String, dynamic>>>? comments;
+
   void getPostComments(String postId) {
     emit(GetPostCommentsLodingState());
     FirebaseFirestore.instance
         .collection('posts')
         .doc(postId)
         .collection('comments')
-        .get().then((value) {
+        .get()
+        .then((value) {
       comments = value.docs.reversed;
       emit(GetPostCommentsSuccessState());
     });
   }
-  static Widget changeIcon()
-  {
+
+  static Widget changeIcon() {
     bool love = false;
-    if(!love)
-      {
-        love = !love;
-        return Icon(
-              Icons.favorite,
-              color: Colors.red,
-              size: 20,
-            );
-      }else
-        {
-          Icon(
-                Icons.favorite_border,
-                color: Colors.red,
-                size: 20,
-              );
-        }
+    if (!love) {
+      love = !love;
+      return Icon(
+        Icons.favorite,
+        color: Colors.red,
+        size: 20,
+      );
+    } else {
+      Icon(
+        Icons.favorite_border,
+        color: Colors.red,
+        size: 20,
+      );
+    }
     // return love ? Icon(
     //   Icons.favorite,
     //   color: Colors.red,
@@ -282,6 +282,7 @@ class Appcubit extends Cubit<AppStates> {
     //   size: 20,
     // );
   }
+
   List<QueryDocumentSnapshot<Map<String, dynamic>>> users = [];
 
   void getUsers() {
@@ -293,4 +294,50 @@ class Appcubit extends Cubit<AppStates> {
     });
   }
 
+  void addMessage(String text, String reciverId) {
+    emit(AddMessageLodingState());
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uId)
+        .collection('chats')
+        .doc(reciverId)
+        .collection('message')
+        .add({
+      'message': text,
+      'sender_id': user.uId,
+      'reciver_id': reciverId,
+      'date_time': DateTime.now(),
+    }).then((value) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(reciverId)
+          .collection('chats')
+          .doc(user.uId)
+          .collection('message')
+          .add({
+        'message': text,
+        'sender_id': user.uId,
+        'reciver_id': reciverId,
+        'date_time': DateTime.now(),
+      }).then((value) {
+        emit(AddMessageSuccessState());
+      });
+    });
+  }
+
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = [];
+
+  void getMessages(String friendId) {
+    emit(GetMessageLodingState());
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uId)
+        .collection('chats')
+        .doc(friendId)
+        .collection('message')
+        .get().then((value) {
+          messages = value.docs;
+          emit(GetMessageSuccessState());
+    });
+  }
 }

@@ -373,28 +373,42 @@ Widget BuildComment(
       ),
     );
 
-Widget BuildChatItem(context) => Padding(
+Widget BuildChatItem(
+        context, QueryDocumentSnapshot<Map<String, dynamic>> chatUser) =>
+    Padding(
       padding: const EdgeInsets.all(15),
       child: InkWell(
         onTap: () {
+          Appcubit.get(context).messages = [];
+          Appcubit.get(context).getMessages(chatUser.id);
           Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatDetailesScreen(),
+                builder: (context) {
+                  return BlocBuilder<Appcubit,AppStates>(
+                    builder: (context, state) {
+                      return ConditionalBuilderRec(
+                        condition: Appcubit.get(context).messages.isNotEmpty,
+                        fallback: (context) => Center(child: CircularProgressIndicator()),
+                        builder: (context) => ChatDetailesScreen(chatUser),
+                      );
+                    }
+                  );
+                }
+
               ));
         },
         child: Row(
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage: NetworkImage(
-                  'https://firebasestorage.googleapis.com/v0/b/social-app-ad1ae.appspot.com/o/user%2FIMG_20230503_185630.jpg?alt=media&token=4699440e-db71-4865-a9b4-a2d880d0032d&_gl=1*nji5aq*_ga*MjU4OTM5OTc3LjE2OTc1ODgyMTY.*_ga_CW55HF8NVT*MTY5ODg3MjM3OS4zOC4xLjE2OTg4NzM5MjIuNDUuMC4w'),
+              backgroundImage: NetworkImage(chatUser.get('profile')),
             ),
             SizedBox(
               width: 10,
             ),
             Text(
-              'Islam Khalid',
+              chatUser.get('name'),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
