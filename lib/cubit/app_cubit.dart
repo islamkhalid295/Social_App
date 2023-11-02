@@ -56,6 +56,8 @@ class Appcubit extends Cubit<AppStates> {
   }
 
   void changeNavBarState(int index, context) {
+    if (index != 1)
+      getUsers();
     if (index != 2)
       currentIndex = index;
     else
@@ -162,7 +164,7 @@ class Appcubit extends Cubit<AppStates> {
     emit(RemovePostImageState());
   }
 
-  List<QueryDocumentSnapshot<Map<String, dynamic>>>? posts;
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> posts = [];
 
   void addPost(String text, String postImage) {
     emit(AddNewPostLodingState());
@@ -178,16 +180,19 @@ class Appcubit extends Cubit<AppStates> {
       emit(AddNewPostSuccessState());
     });
   }
-List<int> likes = [];
+  List<Future<int>> likes = [];
   void getPosts() {
     emit(GetPostsLodingState());
     FirebaseFirestore.instance.collection('posts').get().then((value) {
       posts = value.docs;
-      value.docs.forEach((element) {
-       getPostLikes(element.id,likes);
+      getPostsLikes().then((value) {
+        likes = value;
       });
       //print(value.docs[0].get('text'));
       //print(value.docs[0].id);
+    }).then((value) {
+      print(likes.length);
+      emit(GetPostsSuccessState());
     });
   }
 
@@ -207,17 +212,17 @@ List<int> likes = [];
     });
   }
 
-  void getPostLikes(String postId, List<int> likes) {
-    FirebaseFirestore.instance
-        .collection('posts')
-        .doc(postId)
-        .collection('likes')
-        .get()
-        .then((value) {
-          likes.add(value.docs.length);
-      emit(GetPostLikesSuccessState());
-    });
+  Future<List<Future<int>>> getPostsLikes() async {
+    return posts.map((post) async {
+      int likesCount = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(post.id)
+          .collection('likes')
+          .get()
+          .then((value) => value.docs.length);
 
+      return likesCount;
+    }).toList();
   }
 
  static var scaffoldKey = GlobalKey<ScaffoldState>();
@@ -276,6 +281,16 @@ List<int> likes = [];
     //   color: Colors.red,
     //   size: 20,
     // );
+  }
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> users = [];
+
+  void getUsers() {
+    emit(GetUsersLodingState());
+    FirebaseFirestore.instance.collection('users').get().then((value) {
+      users = value.docs;
+    }).then((value) {
+      emit(GetUsersSuccessState());
+    });
   }
 
 }

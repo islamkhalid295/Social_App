@@ -72,6 +72,12 @@ class GetPostsSuccessState extends AppStates {}
 
 class GetPostsErrorState extends AppStates {}
 
+class GetUsersLodingState extends AppStates {}
+
+class GetUsersSuccessState extends AppStates {}
+
+class GetUsersErrorState extends AppStates {}
+
 class AddNewPostLodingState extends AppStates {}
 
 class AddNewPostSuccessState extends AppStates {}

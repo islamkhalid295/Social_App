@@ -20,13 +20,18 @@ void toast(String messange, Color color) {
       fontSize: 16.0);
 }
 
-Widget myDivider() => Container(
-      width: double.infinity,
-      height: 1.0,
-      color: Colors.grey,
-    );
+Widget myDivider() => Padding(
+  padding: const EdgeInsets.only(left:  20),
+  child:   Container(
+        width: double.infinity,
+        height: 1.0,
+        color: Colors.grey[300],
 
-Widget BuildNewsItem(context, QueryDocumentSnapshot<Map<String, dynamic>> posts, int index) {
+      ),
+);
+
+Widget BuildNewsItem(
+    context, QueryDocumentSnapshot<Map<String, dynamic>> posts, int index) {
   var commentController = TextEditingController();
   return Padding(
     padding: const EdgeInsets.only(top: 3.0, left: 8, right: 8),
@@ -165,54 +170,79 @@ Widget BuildNewsItem(context, QueryDocumentSnapshot<Map<String, dynamic>> posts,
                                         children: [
                                           Expanded(
                                             child: SingleChildScrollView(
-                                              physics: PageScrollPhysics(),
-                                              child: BlocConsumer<Appcubit,AppStates>(
-                                                listener: (context, state) {
-                                                },
-                                                builder: (context, state) {
-                                                  return ConditionalBuilderRec(
-                                                    condition: Appcubit.get(context).comments != null ,
-                                                    fallback: (context) => Center(child: CircularProgressIndicator()),
-                                                    builder: (context) {
-                                                      return ListView.builder(
-                                                        shrinkWrap: true,
-                                                        physics: const NeverScrollableScrollPhysics(),
-                                                        itemBuilder: (context, index) => BuildComment(context,Appcubit.get(context).comments!.elementAt(index)),
-                                                        itemCount: Appcubit.get(context).comments!.length,
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              )
-                                            ),
+                                                physics: PageScrollPhysics(),
+                                                child: BlocConsumer<Appcubit,
+                                                    AppStates>(
+                                                  listener: (context, state) {},
+                                                  builder: (context, state) {
+                                                    return ConditionalBuilderRec(
+                                                      condition:
+                                                          Appcubit.get(context)
+                                                                  .comments !=
+                                                              null,
+                                                      fallback: (context) => Center(
+                                                          child:
+                                                              CircularProgressIndicator()),
+                                                      builder: (context) {
+                                                        return ListView.builder(
+                                                          shrinkWrap: true,
+                                                          physics:
+                                                              const NeverScrollableScrollPhysics(),
+                                                          itemBuilder: (context,
+                                                                  index) =>
+                                                              BuildComment(
+                                                                  context,
+                                                                  Appcubit.get(
+                                                                          context)
+                                                                      .comments!
+                                                                      .elementAt(
+                                                                          index)),
+                                                          itemCount:
+                                                              Appcubit.get(
+                                                                      context)
+                                                                  .comments!
+                                                                  .length,
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                )),
                                           ),
                                           Card(
-                                            margin: EdgeInsets.symmetric(horizontal: 10),
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 10),
                                             elevation: 5,
-                                            shape: OutlineInputBorder(borderRadius: BorderRadius.circular(5),
-                                            borderSide: BorderSide(color: Colors.amber)
-                                            ),
-                                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                                            shape: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                borderSide: BorderSide(
+                                                    color: Colors.amber)),
+                                            clipBehavior:
+                                                Clip.antiAliasWithSaveLayer,
                                             child: Row(
                                               children: [
                                                 // Icon(Icons.comment,
                                                 //     color: Colors.grey),
                                                 Expanded(
                                                   child: Padding(
-                                                    padding: const EdgeInsets
-                                                        .only(
-                                                        left:  10),
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10),
                                                     child: Container(
                                                       width: double.infinity,
                                                       decoration: BoxDecoration(
-                                                          color: Colors.grey[200],
+                                                          color:
+                                                              Colors.grey[200],
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(10)),
+                                                                  .circular(
+                                                                      10)),
                                                       child: Padding(
-                                                        padding: const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 8.0),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal:
+                                                                    8.0),
                                                         child: TextFormField(
                                                             maxLines: 5,
                                                             minLines: 1,
@@ -222,8 +252,9 @@ Widget BuildNewsItem(context, QueryDocumentSnapshot<Map<String, dynamic>> posts,
                                                                 const InputDecoration(
                                                               hintText:
                                                                   'write your comment ...',
-                                                              border: InputBorder
-                                                                  .none,
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
                                                             )),
                                                       ),
                                                     ),
@@ -245,7 +276,6 @@ Widget BuildNewsItem(context, QueryDocumentSnapshot<Map<String, dynamic>> posts,
                                                 )
                                               ],
                                             ),
-
                                           ),
                                         ],
                                       ),
@@ -294,72 +324,69 @@ Widget BuildNewsItem(context, QueryDocumentSnapshot<Map<String, dynamic>> posts,
   );
 }
 
-Widget BuildComment(context, QueryDocumentSnapshot<Map<String, dynamic>> comment) => Padding(
-  padding:
-  const EdgeInsets.only(
-      top: 8,
-      left: 8,
-      bottom: 8),
-  child: Row(
-    crossAxisAlignment:
-    CrossAxisAlignment
-        .start,
-    children: [
-      CircleAvatar(
-        radius: 16,
-        backgroundImage:
-        NetworkImage(
-            comment['userImage']),
-      ),
-      SizedBox(
-        width: 10,
-      ),
-      Expanded(
-        child: Container(
-          decoration:
-          BoxDecoration(
-            borderRadius:
-            BorderRadius
-                .circular(
-                10),
-            border: Border.all(
-                color: Colors
-                    .grey),
-            color: Colors
-                .grey[300],
+Widget BuildComment(
+        context, QueryDocumentSnapshot<Map<String, dynamic>> comment) =>
+    Padding(
+      padding: const EdgeInsets.only(top: 8, left: 8, bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundImage: NetworkImage(comment['userImage']),
           ),
-          child: Padding(
-            padding:
-            const EdgeInsets
-                .all(8.0),
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment
-                  .start,
-              children: [
-                Text(
-                  comment['userName'],
-                  style: Theme.of(
-                      context)
-                      .textTheme
-                      .bodyLarge
-                      ?.copyWith(
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
+          SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey),
+                color: Colors.grey[300],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      comment['userName'],
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    Text(
+                      comment['comment'],
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
-                Text(
-                  comment['comment'],
-                  style: Theme.of(
-                      context)
-                      .textTheme
-                      .bodySmall,
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
-    ],
-  ),
-);
+    );
+
+Widget BuildChatItem(context) => Padding(
+      padding: const EdgeInsets.all(15),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundImage: NetworkImage(
+                'https://firebasestorage.googleapis.com/v0/b/social-app-ad1ae.appspot.com/o/user%2FIMG_20230503_185630.jpg?alt=media&token=4699440e-db71-4865-a9b4-a2d880d0032d&_gl=1*nji5aq*_ga*MjU4OTM5OTc3LjE2OTc1ODgyMTY.*_ga_CW55HF8NVT*MTY5ODg3MjM3OS4zOC4xLjE2OTg4NzM5MjIuNDUuMC4w'),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Text(
+            'Islam Khalid',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+        ],
+      ),
+    );
