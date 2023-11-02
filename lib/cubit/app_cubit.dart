@@ -56,7 +56,7 @@ class Appcubit extends Cubit<AppStates> {
   }
 
   void changeNavBarState(int index, context) {
-    if (index != 1)
+    if (index == 1)
       getUsers();
     if (index != 2)
       currentIndex = index;

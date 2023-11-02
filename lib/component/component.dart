@@ -8,6 +8,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:social_app/constans/constats.dart';
 import 'package:social_app/cubit/app_cubit.dart';
 import 'package:social_app/cubit/states.dart';
+import 'package:social_app/modules/chat_detailes_screen.dart';
 
 void toast(String messange, Color color) {
   Fluttertoast.showToast(
@@ -21,14 +22,13 @@ void toast(String messange, Color color) {
 }
 
 Widget myDivider() => Padding(
-  padding: const EdgeInsets.only(left:  20),
-  child:   Container(
+      padding: const EdgeInsets.only(left: 20),
+      child: Container(
         width: double.infinity,
         height: 1.0,
         color: Colors.grey[300],
-
       ),
-);
+    );
 
 Widget BuildNewsItem(
     context, QueryDocumentSnapshot<Map<String, dynamic>> posts, int index) {
@@ -249,7 +249,11 @@ Widget BuildNewsItem(
                                                             controller:
                                                                 commentController,
                                                             decoration:
-                                                                const InputDecoration(
+                                                                InputDecoration(
+                                                              hintStyle: TextStyle(
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      400]),
                                                               hintText:
                                                                   'write your comment ...',
                                                               border:
@@ -343,7 +347,7 @@ Widget BuildComment(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.grey),
-                color: Colors.grey[300],
+                color: Colors.grey[300]?.withOpacity(0.4),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -371,22 +375,31 @@ Widget BuildComment(
 
 Widget BuildChatItem(context) => Padding(
       padding: const EdgeInsets.all(15),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: NetworkImage(
-                'https://firebasestorage.googleapis.com/v0/b/social-app-ad1ae.appspot.com/o/user%2FIMG_20230503_185630.jpg?alt=media&token=4699440e-db71-4865-a9b4-a2d880d0032d&_gl=1*nji5aq*_ga*MjU4OTM5OTc3LjE2OTc1ODgyMTY.*_ga_CW55HF8NVT*MTY5ODg3MjM3OS4zOC4xLjE2OTg4NzM5MjIuNDUuMC4w'),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Islam Khalid',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-        ],
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailesScreen(),
+              ));
+        },
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: NetworkImage(
+                  'https://firebasestorage.googleapis.com/v0/b/social-app-ad1ae.appspot.com/o/user%2FIMG_20230503_185630.jpg?alt=media&token=4699440e-db71-4865-a9b4-a2d880d0032d&_gl=1*nji5aq*_ga*MjU4OTM5OTc3LjE2OTc1ODgyMTY.*_ga_CW55HF8NVT*MTY5ODg3MjM3OS4zOC4xLjE2OTg4NzM5MjIuNDUuMC4w'),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              'Islam Khalid',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ],
+        ),
       ),
     );

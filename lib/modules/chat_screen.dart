@@ -12,11 +12,12 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Appcubit cubit = Appcubit.get(context);
     return BlocConsumer<Appcubit,AppStates>(
       listener: (context, state) {
       },
       builder: (context, state) {
-        Appcubit cubit = Appcubit.get(context);
+        print(cubit.users.length);
         return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ConditionalBuilderRec(
