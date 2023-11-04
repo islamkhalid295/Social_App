@@ -34,7 +34,7 @@ class FeedScreen extends StatelessWidget {
                condition: cubit.posts.isNotEmpty && cubit.likes.length == cubit.posts.length,
                 fallback: (context) => Center(child: CircularProgressIndicator()),
                 builder: (context) => ListView.builder(
-                  itemBuilder: (context, index) => BuildNewsItem(context,cubit.posts![index],index),
+                  itemBuilder: (context, index) =>  BuildNewsItem(context,cubit.posts[index],index),
                   itemCount: cubit.posts.length,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),

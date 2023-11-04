@@ -168,45 +168,29 @@ Widget BuildNewsItem(
                                       ),
                                       child: Column(
                                         children: [
+                                          SizedBox(height: 30,
+                                          child: Container(
+                                            child: Icon(Icons.more_horiz,size: 30,),
+                                          ),
+                                          ),
                                           Expanded(
-                                            child: SingleChildScrollView(
-                                                physics: PageScrollPhysics(),
-                                                child: BlocConsumer<Appcubit,
-                                                    AppStates>(
-                                                  listener: (context, state) {},
-                                                  builder: (context, state) {
-                                                    return ConditionalBuilderRec(
-                                                      condition:
-                                                          Appcubit.get(context)
-                                                                  .comments !=
-                                                              null,
-                                                      fallback: (context) => Center(
-                                                          child:
-                                                              CircularProgressIndicator()),
-                                                      builder: (context) {
-                                                        return ListView.builder(
-                                                          shrinkWrap: true,
-                                                          physics:
-                                                              const NeverScrollableScrollPhysics(),
-                                                          itemBuilder: (context,
-                                                                  index) =>
-                                                              BuildComment(
-                                                                  context,
-                                                                  Appcubit.get(
-                                                                          context)
-                                                                      .comments!
-                                                                      .elementAt(
-                                                                          index)),
-                                                          itemCount:
-                                                              Appcubit.get(
-                                                                      context)
-                                                                  .comments!
-                                                                  .length,
-                                                        );
-                                                      },
+                                            child: BlocConsumer<Appcubit, AppStates>(
+                                              listener: (context, state) {},
+                                              builder: (context, state) {
+                                                return ConditionalBuilderRec(
+                                                  condition: Appcubit.get(context).comments != null,
+                                                  fallback: (context) => Center(
+                                                      child: CircularProgressIndicator()),
+                                                  builder: (context) {
+                                                    return ListView.builder(
+                                                      addAutomaticKeepAlives: true,
+                                                      itemBuilder: (context, index) => BuildComment(context, Appcubit.get(context).comments!.elementAt(index)),
+                                                      itemCount: Appcubit.get(context).comments!.length,
                                                     );
                                                   },
-                                                )),
+                                                );
+                                              },
+                                            ),
                                           ),
                                           Card(
                                             margin: EdgeInsets.symmetric(
@@ -271,6 +255,7 @@ Widget BuildNewsItem(
                                                             commentController
                                                                 .text,
                                                             posts.id);
+                                                    commentController.text = '';
                                                   },
                                                   icon: Icon(
                                                     Icons.telegram_outlined,
@@ -381,22 +366,9 @@ Widget BuildChatItem(
         onTap: () {
           Appcubit.get(context).messages = [];
           Appcubit.get(context).getMessages(chatUser.id);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return BlocBuilder<Appcubit,AppStates>(
-                    builder: (context, state) {
-                      return ConditionalBuilderRec(
-                        condition: Appcubit.get(context).messages.isNotEmpty,
-                        fallback: (context) => Center(child: CircularProgressIndicator()),
-                        builder: (context) => ChatDetailesScreen(chatUser),
-                      );
-                    }
-                  );
-                }
-
-              ));
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ChatDetailesScreen(chatUser);
+          }));
         },
         child: Row(
           children: [

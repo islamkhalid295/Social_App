@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:conditional_builder_rec/conditional_builder_rec.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_app/constans/constats.dart';
 import 'package:social_app/cubit/app_cubit.dart';
+import 'package:social_app/cubit/states.dart';
 
 class ChatDetailesScreen extends StatelessWidget {
   ChatDetailesScreen(this.chatUser, {super.key});
@@ -35,63 +38,73 @@ class ChatDetailesScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Expanded(
-                child: Container(
-                  child: ListView.builder(
-                    itemBuilder: (context, index) => cubit.messages[index].get('sender_id') == user.uId ? MyMessage(cubit.messages[index].get('message')) : Message(cubit.messages[index].get('message')),
-                    itemCount: cubit.messages.length,
-                  ))),
-            Card(
-              elevation: 5,
-              shape: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(color: Colors.amber)),
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Row(
+        child: BlocConsumer<Appcubit,AppStates>(
+          listener: (context, state) {
+          },
+          builder: (context, state) {
+            return ConditionalBuilderRec(
+              condition: Appcubit.get(context).messages.isNotEmpty,
+              fallback: (context) => Center(child: CircularProgressIndicator()),
+              builder: (context) => Column(
                 children: [
-                  // Icon(Icons.comment,
-                  //     color: Colors.grey),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
                       child: Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextFormField(
-                              maxLines: 5,
-                              minLines: 1,
-                              controller: messageController,
-                              decoration: InputDecoration(
-                                hintText: 'write your message ...',
-                                hintStyle: TextStyle(color: Colors.grey[400]),
-                                border: InputBorder.none,
-                              )),
+                          child: ListView.builder(
+                            itemBuilder: (context, index) => cubit.messages[index].get('sender_id') == user.uId ? MyMessage(cubit.messages[index].get('message')) : Message(cubit.messages[index].get('message')),
+                            itemCount: cubit.messages.length,
+                          ))),
+                  Card(
+                    elevation: 5,
+                    shape: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide: BorderSide(color: Colors.amber)),
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Row(
+                      children: [
+                        // Icon(Icons.comment,
+                        //     color: Colors.grey),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: TextFormField(
+                                    maxLines: 5,
+                                    minLines: 1,
+                                    controller: messageController,
+                                    decoration: InputDecoration(
+                                      hintText: 'write your message ...',
+                                      hintStyle: TextStyle(color: Colors.grey[400]),
+                                      border: InputBorder.none,
+                                    )),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        IconButton(
+                          onPressed: () {
+                            Appcubit.get(context)
+                                .addMessage(messageController.text, chatUser.id);
+                            messageController.text = '';
+                          },
+                          icon: Icon(
+                            Icons.telegram_outlined,
+                            color: Colors.amber,
+                            size: 40,
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      Appcubit.get(context)
-                          .addMessage(messageController.text, chatUser.id);
-                      messageController.text = '';
-                    },
-                    icon: Icon(
-                      Icons.telegram_outlined,
-                      color: Colors.amber,
-                      size: 40,
-                    ),
-                  )
                 ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

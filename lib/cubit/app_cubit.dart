@@ -180,13 +180,24 @@ class Appcubit extends Cubit<AppStates> {
 
   List<Future<int>> likes = [];
 
+  List<Future<int>> getPostsLikes()  {
+    return posts.map((post) async {
+      int likesCount = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(post.id)
+          .collection('likes')
+          .get()
+          .then((value) => value.docs.length);
+
+      return likesCount;
+    }).toList();
+  }
+
   void getPosts() {
     emit(GetPostsLodingState());
     FirebaseFirestore.instance.collection('posts').get().then((value) {
       posts = value.docs;
-      getPostsLikes().then((value) {
-        likes = value;
-      });
+      likes = getPostsLikes();
       //print(value.docs[0].get('text'));
       //print(value.docs[0].id);
     }).then((value) {
@@ -210,18 +221,6 @@ class Appcubit extends Cubit<AppStates> {
     });
   }
 
-  Future<List<Future<int>>> getPostsLikes() async {
-    return posts.map((post) async {
-      int likesCount = await FirebaseFirestore.instance
-          .collection('posts')
-          .doc(post.id)
-          .collection('likes')
-          .get()
-          .then((value) => value.docs.length);
-
-      return likesCount;
-    }).toList();
-  }
 
   static var scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -235,6 +234,7 @@ class Appcubit extends Cubit<AppStates> {
       'comment': text,
       'userName': user.name,
       'userImage': user.profile,
+      'date_time' : DateTime.now(),
     }).then((value) {
       emit(AddNewCommentSuccessState());
       getPostComments(postId);
@@ -248,7 +248,7 @@ class Appcubit extends Cubit<AppStates> {
     FirebaseFirestore.instance
         .collection('posts')
         .doc(postId)
-        .collection('comments')
+        .collection('comments').orderBy('date_time')
         .get()
         .then((value) {
       comments = value.docs.reversed;
