@@ -117,10 +117,38 @@ Widget BuildNewsItem(
                       SizedBox(
                         width: 5,
                       ),
-                      Text(
-                        '${Appcubit.get(context).likes[index]}',
-                        style: Theme.of(context).textTheme.labelSmall,
+                      FutureBuilder<List<Future<int>>>(
+                        future: Appcubit.get(context).getPostsLikes(), // Call your function to get the list of Future<int>
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Text(''); // Display loading indicator while waiting for data.
+                          } else if (snapshot.hasError) {
+                            return Text("Error: ${snapshot.error}");
+                          } else {
+                            // All futures are completed, you can access the like counts
+                            List<Future<int>>? likeFutures = snapshot.data;
+                            return FutureBuilder<int>(
+                              future: likeFutures?[index],
+                              builder: (context, likeSnapshot) {
+                                if (likeSnapshot.connectionState == ConnectionState.waiting) {
+                                  return Text('');
+                                } else if (likeSnapshot.hasError) {
+                                  return Text("Error");
+                                } else {
+                                  // Likes are loaded and accessible
+                                  int? likeCount = likeSnapshot.data;
+                                  return Text(
+                                    '${likeCount}',
+                                    style: Theme.of(context).textTheme.labelSmall,
+                                  );
+                                }
+                              },
+                            );
+                          }
+                        },
                       ),
+
+
                       Spacer(),
                       Icon(
                         IconBroken.Chat,

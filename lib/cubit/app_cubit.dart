@@ -44,6 +44,7 @@ class Appcubit extends Cubit<AppStates> {
   ];
 
   void getUser(String uId) {
+    if (uId == '') return;
     emit(LodingGetUserState());
     FirebaseFirestore.instance.collection('users').doc(uId).get().then((value) {
       user = UserModel.fromjson(value.data());
@@ -180,7 +181,7 @@ class Appcubit extends Cubit<AppStates> {
 
   List<Future<int>> likes = [];
 
-  List<Future<int>> getPostsLikes()  {
+  Future<List<Future<int>>> getPostsLikes()  async{
     return posts.map((post) async {
       int likesCount = await FirebaseFirestore.instance
           .collection('posts')
@@ -197,7 +198,7 @@ class Appcubit extends Cubit<AppStates> {
     emit(GetPostsLodingState());
     FirebaseFirestore.instance.collection('posts').get().then((value) {
       posts = value.docs;
-      likes = getPostsLikes();
+      getPostsLikes();
       //print(value.docs[0].get('text'));
       //print(value.docs[0].id);
     }).then((value) {
@@ -289,6 +290,7 @@ class Appcubit extends Cubit<AppStates> {
     emit(GetUsersLodingState());
     FirebaseFirestore.instance.collection('users').get().then((value) {
       users = value.docs;
+      users.removeWhere((myUser) => myUser.id == user.uId);
     }).then((value) {
       emit(GetUsersSuccessState());
     });
@@ -334,9 +336,10 @@ class Appcubit extends Cubit<AppStates> {
         .doc(user.uId)
         .collection('chats')
         .doc(friendId)
-        .collection('message')
-        .get().then((value) {
-          messages = value.docs;
+        .collection('message').orderBy('date_time')
+        .snapshots()
+        .listen((event) {
+          messages = event.docs;
           emit(GetMessageSuccessState());
     });
   }

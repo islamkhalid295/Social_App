@@ -24,7 +24,7 @@ class ChatScreen extends StatelessWidget {
               condition: cubit.users.length > 0,
               fallback: (context) => Center(child: CircularProgressIndicator()),
               builder: (context) => ListView.separated(
-                itemBuilder: (context, index) => BuildChatItem(context,cubit.users[index]),
+                itemBuilder: (context, index) =>  BuildChatItem(context,cubit.users[index]),
                 separatorBuilder: (context, index) =>  myDivider(),
                 itemCount: cubit.users.length,
               ),

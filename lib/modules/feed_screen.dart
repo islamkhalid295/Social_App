@@ -31,13 +31,16 @@ class FeedScreen extends StatelessWidget {
                 ),
               ),
               ConditionalBuilderRec(
-               condition: cubit.posts.isNotEmpty && cubit.likes.length == cubit.posts.length,
+               condition: cubit.posts.isNotEmpty ,
                 fallback: (context) => Center(child: CircularProgressIndicator()),
-                builder: (context) => ListView.builder(
-                  itemBuilder: (context, index) =>  BuildNewsItem(context,cubit.posts[index],index),
+                builder: (context) =>  ListView.builder(
                   itemCount: cubit.posts.length,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    // Use FutureBuilder to await and display the like count for each post
+                    return BuildNewsItem(context,cubit.posts[index],index);
+                  },
                 ),
               ),
             ],

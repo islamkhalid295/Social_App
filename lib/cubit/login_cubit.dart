@@ -7,6 +7,7 @@ import 'package:social_app/component/component.dart';
 import 'package:social_app/constans/constats.dart';
 import 'package:social_app/cubit/app_cubit.dart';
 import 'package:social_app/cubit/states.dart';
+import 'package:social_app/main.dart';
 import 'package:social_app/models/user_model.dart';
 import 'package:social_app/network/local/cache_helper.dart';
 
@@ -27,6 +28,7 @@ class LoginCubit extends Cubit<AppStates> {
       CacheHelper.sharedPreferences.setString('uId',value.user!.uid);
       Appcubit.get(context).getUser(value.user!.uid);
       user.uId = value.user!.uid;
+      uId = value.user!.uid;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeLayout(),));
       emit(LoginSucssesState());
     });
