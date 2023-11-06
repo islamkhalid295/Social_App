@@ -386,8 +386,7 @@ Widget BuildComment(
       ),
     );
 
-Widget BuildChatItem(
-        context, QueryDocumentSnapshot<Map<String, dynamic>> chatUser) =>
+Widget BuildChatItem(context, QueryDocumentSnapshot<Map<String, dynamic>> chatUser) =>
     Padding(
       padding: const EdgeInsets.all(15),
       child: InkWell(
@@ -395,7 +394,7 @@ Widget BuildChatItem(
           Appcubit.get(context).messages = [];
           Appcubit.get(context).getMessages(chatUser.id);
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ChatDetailesScreen(chatUser);
+            return ChatDetailesScreen(chatUser.data());
           }));
         },
         child: Row(
@@ -417,3 +416,5 @@ Widget BuildChatItem(
         ),
       ),
     );
+
+

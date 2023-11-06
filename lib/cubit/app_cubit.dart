@@ -12,6 +12,7 @@ import 'package:social_app/modules/chat_screen.dart';
 import 'package:social_app/modules/feed_screen.dart';
 import 'package:social_app/modules/new_post_screen.dart';
 import 'package:social_app/modules/users_screen.dart';
+import 'package:social_app/network/remote/dio_helper.dart';
 
 import '../component/component.dart';
 import '../constans/constats.dart';
@@ -52,6 +53,9 @@ class Appcubit extends Cubit<AppStates> {
     }).catchError((error) {
       emit(GetUserDataErorrState(error));
     });
+  }
+  Future<Map<String, dynamic>?> getChatUser(String uId)  async {
+    return await FirebaseFirestore.instance.collection('users').doc(uId).get().then((value) =>value.data());
   }
 
   void changeNavBarState(int index, context) {
@@ -296,7 +300,7 @@ class Appcubit extends Cubit<AppStates> {
     });
   }
 
-  void addMessage(String text, String reciverId) {
+  void addMessage(String text, String reciverId, String messageToken) {
     emit(AddMessageLodingState());
     FirebaseFirestore.instance
         .collection('users')
@@ -325,6 +329,24 @@ class Appcubit extends Cubit<AppStates> {
         emit(AddMessageSuccessState());
       });
     });
+    DioHelper.postData('/send',
+      {
+        "notification":
+        {
+          "title": user.name,
+          "body": text,
+        },
+        "to": messageToken,
+        "data" :
+        {
+          "uId" : user.uId,
+          "name" : user.name,
+          "profile" : user.profile,
+        },
+      },
+      token: 'key=AAAA6owHah0:APA91bHUKIYoAS7F7Ufhqn3m69OZBmrLgVSqvoKTPd26cY1YenpxJzyTKL7D3bovpptgXtxtkTrlPf_0DIaveBjlhI05v_IzOzFEN3JT1o0_kPwdfRSLlqXaBc8KKuDGdX-BGrG5VDgv',
+
+    );
   }
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> messages = [];
@@ -343,4 +365,6 @@ class Appcubit extends Cubit<AppStates> {
           emit(GetMessageSuccessState());
     });
   }
+
+
 }

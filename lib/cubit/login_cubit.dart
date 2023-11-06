@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_app/component/component.dart';
@@ -21,7 +22,7 @@ class LoginCubit extends Cubit<AppStates> {
 
   static LoginCubit get(context) => BlocProvider.of(context);
 
-  void login(String email, String password, BuildContext context) {
+  Future<void> login(String email, String password, BuildContext context) async {
     emit(LodingState());
     FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password).then((value) {
       toast('تم تسجيل الدخول بنجاح', Colors.green);
@@ -31,6 +32,16 @@ class LoginCubit extends Cubit<AppStates> {
       uId = value.user!.uid;
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeLayout(),));
       emit(LoginSucssesState());
+    });
+    FirebaseMessaging.instance.getToken().then((value) {
+      token= value;
+      CacheHelper.sharedPreferences.setString('messageToken',value!);
+      FirebaseFirestore.instance.collection('users').doc(uId).update(
+          {
+            'messageToken' : value!,
+          }).then((value) {
+        print(token);
+      });
     });
 
   }

@@ -9,10 +9,11 @@ import 'package:social_app/cubit/states.dart';
 class ChatDetailesScreen extends StatelessWidget {
   ChatDetailesScreen(this.chatUser, {super.key});
   var messageController = TextEditingController();
-  QueryDocumentSnapshot<Map<String, dynamic>> chatUser;
-
+  Map<String, dynamic> chatUser;
   @override
   Widget build(BuildContext context) {
+    Appcubit.get(context).messages = [];
+    Appcubit.get(context).getMessages(chatUser['uId']);
     Appcubit cubit = Appcubit.get(context);
     print("Messages len : ${cubit.messages.length}");
     return Scaffold(
@@ -22,13 +23,13 @@ class ChatDetailesScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage: NetworkImage(chatUser.get('profile')),
+              backgroundImage: NetworkImage(chatUser['profile']),
             ),
             SizedBox(
               width: 10,
             ),
             Text(
-              chatUser.get('name'),
+              chatUser['name'],
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -89,7 +90,7 @@ class ChatDetailesScreen extends StatelessWidget {
                         IconButton(
                           onPressed: () {
                             Appcubit.get(context)
-                                .addMessage(messageController.text, chatUser.id);
+                                .addMessage(messageController.text,chatUser['uId'],chatUser['messageToken']);
                             messageController.text = '';
                           },
                           icon: Icon(
